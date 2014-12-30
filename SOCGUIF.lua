@@ -1,3 +1,6 @@
+-- Created by Sirdabalot - 30/12/2014
+-- Don't reproduce with small modifications and call it your own etc...
+
 local components = require("component")
 local term = require("term")
 local colours = require("colors")
@@ -57,10 +60,10 @@ windowMeta.__index = windowMeta
 function window( P, W, H, T, FGCOL, BGCOL )
 	local w = {
 		guitype = "window",
-		p = P,
-		w = W-1,
-		h = H,
-		t = T,
+		point = P,
+		width = W-1,
+		height = H,
+		title = T,
 		fgcol = FGCOL,
 		bgcol = BGCOL,
 		contents = { }
@@ -72,15 +75,15 @@ end
 function windowMeta:draw( )
 	-- Do shadow
 	gpu.setBackground( 0x000000 )
-	gpu.fill( self.p.x+1, self.p.y+1, self.w, self.h, " " )
+	gpu.fill( self.point.x+1, self.point.y+1, self.width, self.height, " " )
 	-- Do background
 	gpu.setBackground( self.bgcol )
-	gpu.fill( self.p.x, self.p.y, self.w, self.h, " " )
+	gpu.fill( self.point.x, self.point.y, self.width, self.height, " " )
 	-- Do label
 	gpu.setForeground( self.fgcol )
-	gpu.set( self.p.x, self.p.y, string.rep( "=", self.w ) )
-	gpu.set( self.p.x, self.p.y, "#" )
-	gpu.set( self.p.x + math.floor( self.w / 2 ) - math.ceil( #self.t / 2 ), self.p.y, self.t )
+	gpu.set( self.point.x, self.point.y, string.rep( "=", self.width ) )
+	gpu.set( self.point.x, self.point.y, "#" )
+	gpu.set( self.point.x + math.floor( self.width / 2 ) - math.ceil( #self.title / 2 ), self.point.y, self.title )
 	-- Do children
 	for k, v in pairs( self.contents ) do
 		v:draw( )
@@ -96,28 +99,28 @@ buttonMeta.__index = buttonMeta
 function button( Win, P, W, H, L, FGCOL, BGCOL, CM )
 	local b = {
 		guitype = "button",
-		win = Win,
-		p = P,
-		w = W,
-		h = H,
-		l = L,
+		window = Win,
+		point = P,
+		width = W,
+		height = H,
+		label = L,
 		fgcol = FGCOL,
 		bgcol = BGCOL,
-		cm = CM
+		clickedMethod = CM
 	}
 	
 	br = setmetatable( b, buttonMeta )
-	table.insert( b.win.contents, br )
+	table.insert( b.window.contents, br )
 	return br
 end
 
 function buttonMeta:draw( )
 	-- Do background
 	gpu.setBackground( self.bgcol )
-	gpu.fill( self.win.p.x + self.p.x-1, self.win.p.y + self.p.y, self.w, self.h, " " )
+	gpu.fill( self.window.point.x + self.point.x-1, self.window.point.y + self.point.y, self.width, self.height, " " )
 	-- Do label
 	gpu.setForeground( self.fgcol )
-	gpu.set( self.win.p.x + self.p.x + math.floor( self.w / 2 ) - math.floor( #self.l / 2 ) - 1, self.win.p.y + self.p.y + math.floor( self.h / 2 ), self.l )
+	gpu.set( self.window.point.x + self.point.x + math.floor( self.width / 2 ) - math.floor( #self.label / 2 ) - 1, self.window.point.y + self.point.y + math.floor( self.height / 2 ), self.label )
 end
 
 -- textbox --
@@ -128,30 +131,30 @@ textBoxMeta.__index = textBoxMeta
 
 function textBox( Win, P, W, H, T, FGCOL, BGCOL )
 	local tb = {
-		win = Win,
-		p = P,
-		w = W,
-		h = H,
-		t = T,
+		window = Win,
+		point = P,
+		width = W,
+		height = H,
+		text = T,
 		fgcol = FGCOL,
 		bgcol = BGCOL
 	}
 	
 	tbr = setmetatable( tb, textBoxMeta )
-	table.insert( tb.win.contents, tbr )
+	table.insert( tb.window.contents, tbr )
 	return tbr
 end
 
 function textBoxMeta:draw( )
 	-- Do background
 	gpu.setBackground( self.bgcol )
-	gpu.fill( self.win.p.x + self.p.x-1, self.win.p.y + self.p.y, self.w, self.h, " " )
+	gpu.fill( self.winow.point.x + self.point.x-1, self.window.point.y + self.point.y, self.width, self.height, " " )
 	-- Do text
 	gpu.setForeground( self.fgcol )
-	linesNeeded = math.floor(#self.t/self.w)
+	linesNeeded = math.floor(#self.text/self.width)
 	for i = 1, linesNeeded+1 do
-		tbSubStr = string.sub( self.t, ( i ) * self.w - self.w+1, ( i ) * self.w )
-		gpu.set( self.win.p.x + self.p.x-1, self.win.p.y + self.p.y-1 + i, tbSubStr )
+		tbSubStr = string.sub( self.text, ( i ) * self.width - self.width+1, ( i ) * self.width )
+		gpu.set( self.window.point.x + self.point.x-1, self.window.point.y + self.point.y-1 + i, tbSubStr )
 	end
 end
 
@@ -164,24 +167,24 @@ textInputMeta.__index = textInputMeta
 function textInput( Win, P, W, FGCOL, BGCOL )
 	local ti = {
 		guitype = "textinput",
-		win = Win,
-		p = P,
-		w = W,
-		t = "",
+		window = Win,
+		point = P,
+		width = W,
+		text = "",
 		fgcol = FGCOL,
 		bgcol = BGCOL
 	}
 	
 	tir = setmetatable( ti, textInputMeta )
-	table.insert( ti.win.contents, tir )
+	table.insert( ti.window.contents, tir )
 	return tir
 end
 
 function textInputMeta:draw( )
 	gpu.setForeground( self.fgcol )
 	gpu.setBackground( self.bgcol )
-	gpu.set( self.win.p.x + self.p.x, self.win.p.y + self.p.y, string.rep( " ", self.w ) )
-	gpu.set( self.win.p.x + self.p.x, self.win.p.y + self.p.y, self.t )
+	gpu.set( self.window.point.x + self.point.x, self.window.point.y + self.point.y, string.rep( " ", self.width ) )
+	gpu.set( self.window.point.x + self.point.x, self.window.point.y + self.point.y, self.text )
 end
 
 -- Loop
@@ -213,25 +216,25 @@ function GUILoop( BGCOL )
 		ev, ep1, ep2, ep3, ep4, ep5 = event.pull( )
 		if ( ev == "touch" ) then -- p1 addr p2 + 3 loc
 			for k, curwindow in pairs( windowTable ) do -- loop through windows in window table
-				if ( ep2 == curwindow.p.x and ep3 == curwindow.p.y ) then -- Clicked movement cross
+				if ( ep2 == curwindow.point.x and ep3 == curwindow.point.y ) then -- Clicked movement cross
 					ev, addr, nx, ny = event.pull( "touch" )
-					curwindow.p.x = nx
-					curwindow.p.y = ny
+					curwindow.point.x = nx
+					curwindow.point.y = ny
 				end
 				for k2, curcontents in pairs( curwindow.contents ) do -- loop through components in looped window
 					if ( curcontents.guitype == "textinput" ) then
-						tilx = curwindow.p.x + curcontents.p.x
-						tirx = curwindow.p.x + curcontents.p.x + curcontents.w 
-						tiy = curwindow.p.y + curcontents.p.y 
+						tilx = curwindow.point.x + curcontents.point.x
+						tirx = curwindow.point.x + curcontents.point.x + curcontents.width 
+						tiy = curwindow.point.y + curcontents.point.y 
 						if ( ep2 >= tilx and ep2 < tirx and ep3 == tiy ) then -- clicked the text input
 							term.setCursor( tilx, tiy )
 							repeat
 								ev, addr, ch, code = event.pull( "key_down" )
 								if ( code ~= 28 and code ~= 42 and code ~= 14 ) then
-									curcontents.t = curcontents.t .. string.char(ch)
+									curcontents.text = curcontents.text .. string.char(ch)
 								end
 								if ( code == 14 ) then
-									curcontents.t = string.sub( curcontents.t, 1, #curcontents.t - 1 )
+									curcontents.text = string.sub( curcontents.text, 1, #curcontents.text - 1 )
 								end
 								curcontents:draw( )
 							until ( code == 28 )
@@ -239,10 +242,10 @@ function GUILoop( BGCOL )
 					end
 					if ( curcontents.guitype == "button" ) then
 						tp = point( ep2, ep3 )
-						btl = curwindow.p + curcontents.p
-						bbr = curwindow.p + curcontents.p + point( curcontents.w, curcontents.h )
+						btl = curwindow.point + curcontents.point
+						bbr = curwindow.point + curcontents.point + point( curcontents.width, curcontents.height )
 						if ( pointInArea( tp, btl, bbr ) ) then -- Clicked button
-							curcontents.cm( )
+							curcontents.clickedMethod( )
 						end
 					end
 				end
