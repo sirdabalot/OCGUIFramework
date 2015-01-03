@@ -148,7 +148,7 @@ end
 function textBoxMeta:draw( )
 	-- Do background
 	gpu.setBackground( self.bgcol )
-	gpu.fill( self.winow.point.x + self.point.x-1, self.window.point.y + self.point.y, self.width, self.height, " " )
+	gpu.fill( self.window.point.x + self.point.x-1, self.window.point.y + self.point.y, self.width, self.height, " " )
 	-- Do text
 	gpu.setForeground( self.fgcol )
 	linesNeeded = math.floor(#self.text/self.width)
