@@ -83,7 +83,7 @@ function windowMeta:draw( )
 	gpu.setForeground( self.fgcol )
 	gpu.set( self.point.x, self.point.y, string.rep( "=", self.width ) )
 	gpu.set( self.point.x, self.point.y, "#" )
-	gpu.set( self.point.x + math.floor( self.width / 2 ) - math.ceil( #self.title / 2 ), self.point.y, self.title )
+	gpu.set( self.point.x + math.floor( self.width / 2 ) - math.floor( #self.title / 2 ), self.point.y, self.title )
 	-- Do children
 	for k, v in pairs( self.contents ) do
 		v:draw( )
