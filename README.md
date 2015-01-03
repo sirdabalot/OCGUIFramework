@@ -29,6 +29,12 @@ Note that point must be a point object such as point( 5, 5 )
 
 Foreground and background colours are hex values like ( 0xFF0000 )
 
+IMPORTANT!:
+
+When windows are created they should be inserted into the windowTable, like so:
+
+table.insert( windowTable, window1 )
+
 ----------------
 Buttons
 ----------------
